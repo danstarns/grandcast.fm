@@ -2,7 +2,7 @@ import { typeDefs } from './graphql-schema'
 import { ApolloServer } from 'apollo-server-express'
 import express from 'express'
 import neo4j from 'neo4j-driver'
-import { makeAugmentedSchema } from 'neo4j-graphql-js'
+import { makeAugmentedSchema } from '@neo4j/graphql'
 import dotenv from 'dotenv'
 import { initializeDatabase } from './initialize'
 
@@ -80,14 +80,6 @@ const resolvers = {
 const schema = makeAugmentedSchema({
   typeDefs,
   resolvers,
-  config: {
-    query: {
-      exclude: ['PodcastSearchResult', 'AuthToken', 'User', 'Playlist'],
-    },
-    mutation: {
-      exclude: ['PodcastSearchResult', 'AuthToken', 'User', 'Playlist'],
-    },
-  },
 })
 
 /*
@@ -141,12 +133,11 @@ const server = new ApolloServer({
       userId = decoded.id
     }
     return {
-      cypherParams: { userId },
       driver,
-      neo4jDatabase: process.env.NEO4J_DATABASE,
+      req,
     }
   },
-  schema: schema,
+  schema: schema.schema,
   introspection: true,
   playground: true,
 })
